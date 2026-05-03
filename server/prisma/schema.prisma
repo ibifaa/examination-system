@@ -24,6 +24,37 @@ model Question {
   questionNum  Int
   hasPassage   Boolean
   category     String?
-
   options      Option[]
+}
+
+model Option {
+  id          Int      @id @default(autoincrement())
+  label       String   // "a", "b", "c", "d"
+  text        String
+
+  questionId  Int
+  question    Question @relation(fields: [questionId], references: [id])
+}
+
+
+model Result {
+  id        String   @id @default(uuid())
+  userId    String
+  examId    String
+  score     Int
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      String   // user, admin
+  createdAt DateTime @default(now())
+}
+
+model Exam {
+  id        String   @id @default(uuid())
+  title     String
+  createdAt DateTime @default(now())
 }
