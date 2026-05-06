@@ -1,9 +1,9 @@
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcryptjs');
 
 const saltRounds = 10;
 
 // services/passwordService.js
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const SALT_ROUNDS = 10;
 
