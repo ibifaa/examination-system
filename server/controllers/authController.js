@@ -4,39 +4,58 @@
 import { hashPassword, comparePassword } from '../utils/password.js';
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
-// import prisma from '../prisma/client.js';
+import prisma from '../prisma/client.js';
 
 // const prisma = require("../prisma/client.js");
 
 // REGISTER
 const register = async (req, res) => {
+
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
+
+    // console.log(username, email, password)
 
 
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
-  });
+    const normalizedEmail = email?.trim().toLowerCase();
+
+    if (!normalizedEmail || !password) {
+      return res.status(400).json({ message: "Missing fields" });
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email: normalizedEmail,
+      },
+    });
+
+  
 
     if (existingUser) {
     return res.status(400).json({ message: "User already exists" });
   }
 
 
-    const hashedPassword = hashPassword(password);
+    // const hashedPassword = hashPassword(password);
+    const hashedPassword =  await hashPassword(password);
+
+  
 
   const user = await prisma.user.create({
     data: {
       username,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
+      role
     },
   });
 
 
     res.status(201).json({ message: 'User created successfully' });
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ 
+      message: 'Server error',
+    error:err.message });
   }
 };
 
@@ -54,7 +73,8 @@ const login = async (req, res) => {
     return res.status(400).json({ message: "Invalid credentials" });
   }
 
-  const isMatch = comparePassword(password, user.password);
+  const isMatch = await comparePassword(password, user.password);
+
 
   if (!isMatch) {
     return res.status(400).json({ message: "Invalid credentials" });
@@ -62,7 +82,7 @@ const login = async (req, res) => {
 
   const token = jwt.sign(
     { id: user.id, email: user.email },
-    process.env.JWT_SECRET,
+    process.env.SECRET,
     { expiresIn: "15m" }
   );
 

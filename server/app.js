@@ -11,7 +11,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 
-// 👉 Connect DB immediately (top-level async)
+
 prisma.$connect()
   .then(() => {
     console.log('✅ Database connected');
