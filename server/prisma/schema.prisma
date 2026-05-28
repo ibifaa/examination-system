@@ -42,16 +42,111 @@ model Result {
   createdAt DateTime @default(now())
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      String   // user, admin
-  createdAt DateTime @default(now())
-}
+
 
 model Exam {
   id        String   @id @default(uuid())
   title     String
   createdAt DateTime @default(now())
+}
+
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  username    String  @unique
+  role        String   // user, admin, tutor, sub-admin
+
+  isVerified  Boolean  @default(false)
+  twoFactorEnabled Boolean @default(false)
+
+  lastLogin   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  verificationTokens EmailVerificationToken[]
+  passwordResetTokens PasswordResetToken[]
+  refreshTokens RefreshToken[]
+  sessions Session[]
+  twoFactorCodes TwoFactorCode[]
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+
+  token     String
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  // Relation
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+
+  token     String
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  // Relation
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+
+  token     String   @unique
+  isRevoked Boolean  @default(false)
+
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  // Relation
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+
+  ipAddress String?
+  userAgent String?
+
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  // Relation
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model TwoFactorCode {
+  id        String   @id @default(uuid())
+
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  // Relation
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
