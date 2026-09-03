@@ -11,8 +11,8 @@ import {
 import {
   generateVerificationToken,
   generateTokenExpiry,
-} from "./tokenService.js";
+} from "./tokenServices.js";
 
 import {
   sendVerificationEmail,
-} from "./emailService.js";
+} from "./emailServices.js";
